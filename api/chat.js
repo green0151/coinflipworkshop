@@ -1,4 +1,6 @@
 export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
+
   const { message } = req.body;
 
   try {
@@ -6,22 +8,26 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer YOUR_OPENROUTER_API_KEY`
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'mistral/mistral-7b-instruct', // or try 'meta-llama/llama-2-13b-chat'
+        model: 'mistral/mistral-7b-instruct',
         messages: [
-          { role: 'system', content: 'You are a friendly gambling assistant.' },
+          { role: 'system', content: 'You are a helpful assistant on a gambling website.' },
           { role: 'user', content: message }
         ]
       })
     });
 
     const data = await response.json();
-    const reply = data?.choices?.[0]?.message?.content || 'No reply from AI.';
+
+    console.log('OpenRouter raw response:', data); // 🧪 LOG the full reply
+
+    const reply = data?.choices?.[0]?.message?.content?.trim();
+
+    if (!reply) {
+      return res.status(200).json({ reply: 'No reply from AI.' });
+    }
+
     return res.status(200).json({ reply });
   } catch (error) {
-    console.error('OpenRouter error:', error);
-    return res.status(500).json({ error: 'OpenRouter API failed' });
-  }
-}
