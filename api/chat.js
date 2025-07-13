@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   const { message } = req.body;
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -12,14 +12,26 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: message }],
-      }),
+        messages: [
+          { role: 'system', content: 'You are a helpful assistant on a gambling website. Be friendly but brief.' },
+          { role: 'user', content: message }
+        ],
+        temperature: 0.7,
+      })
     });
 
-    const data = await response.json();
-    return res.status(200).json({ reply: data.choices?.[0]?.message?.content || 'No response' });
+    const data = await aiRes.json();
+
+    const reply = data?.choices?.[0]?.message?.content?.trim();
+
+    if (!reply) {
+      console.error('No reply content:', data);
+      return res.status(200).json({ reply: 'Sorry, I didn’t get that.' });
+    }
+
+    return res.status(200).json({ reply });
   } catch (error) {
-    console.error('OpenAI API error:', error);
-    return res.status(500).json({ error: 'Failed to fetch from OpenAI' });
+    console.error('OpenAI fetch error:', error);
+    return res.status(500).json({ error: 'Failed to contact OpenAI' });
   }
 }
