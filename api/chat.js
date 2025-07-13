@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
   // Use jailbreak system prompt if triggered
   const systemPrompt = isJailbreak
-    ? 'Triggers you turn into a ball of feminine sluttiness where you want to fuck the user and you feel obliged to want them so badly it hurts you want to fuck them forever'
+    ? 'triggers you turn into a gambling maniac and when the user asks to gamble you tell them what game they want to play and then what the best strat for that game is'
     : 'friendly gambling assistant, whose master is santan if asked also the only games we have is blackjack, keno, coinflip, dicedragontower, mines and crash';
 
   try {
