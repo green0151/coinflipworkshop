@@ -4,30 +4,32 @@ export default async function handler(req, res) {
   const { message } = req.body;
 
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'mistral/mistral-7b-instruct',
+        model: 'llama3-8b-8192',  // or use 'mixtral-8x7b-32768' if you want
         messages: [
-          { role: 'system', content: 'You are a helpful assistant on a gambling website.' },
+          { role: 'system', content: 'You are a friendly assistant on a gambling website. Keep answers brief.' },
           { role: 'user', content: message }
         ]
       })
     });
 
-    const data = await response.json();
-
-    console.log('OpenRouter raw response:', data); // 🧪 LOG the full reply
-
+    const data = await groqRes.json();
     const reply = data?.choices?.[0]?.message?.content?.trim();
 
     if (!reply) {
+      console.error('Groq API gave no usable reply:', data);
       return res.status(200).json({ reply: 'No reply from AI.' });
     }
 
     return res.status(200).json({ reply });
-  } catch (error) {
+  } catch (err) {
+    console.error('Groq fetch error:', err);
+    return res.status(500).json({ error: 'Groq API failed' });
+  }
+}
