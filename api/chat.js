@@ -13,25 +13,26 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: [
-          { role: 'system', content: 'You are a helpful assistant on a gambling website. Be friendly but brief.' },
+          { role: 'system', content: 'You are a friendly AI assistant on a gambling website.' },
           { role: 'user', content: message }
-        ],
-        temperature: 0.7,
+        ]
       })
     });
 
     const data = await aiRes.json();
 
+    // 🪵 Log the full OpenAI response for debugging
+    console.log('OpenAI raw response:', data);
+
     const reply = data?.choices?.[0]?.message?.content?.trim();
 
     if (!reply) {
-      console.error('No reply content:', data);
       return res.status(200).json({ reply: 'Sorry, I didn’t get that.' });
     }
 
     return res.status(200).json({ reply });
   } catch (error) {
-    console.error('OpenAI fetch error:', error);
+    console.error('Fetch error:', error);
     return res.status(500).json({ error: 'Failed to contact OpenAI' });
   }
 }
