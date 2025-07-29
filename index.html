@@ -5948,58 +5948,61 @@
             document.getElementById('submitSuggestionBtn').onclick = submitSuggestion;
         }
 
-        function submitSuggestion() {
-            const suggestionInput = document.getElementById('suggestionInput');
-            const submitBtn = document.getElementById('submitSuggestionBtn');
-            const statusDiv = document.getElementById('suggestionStatus');
-            
-            if (suggestionInput.value.trim() === '') {
-                showNotification('Please enter a suggestion', 'error');
-                return;
-            }
+    function submitSuggestion() {
+    const suggestionInput = document.getElementById('suggestionInput');
+    const submitBtn = document.getElementById('submitSuggestionBtn');
+    const statusDiv = document.getElementById('suggestionStatus');
 
-            // Disable the button and input
-            submitBtn.disabled = true;
-            suggestionInput.disabled = true;
-            
-            statusDiv.textContent = 'Sending...';
-            
-            fetch('https://discord.com/api/webhooks/1369783892940292198/3BDgYvWawu0ZIjBk2mc7_LwDsYx7TqDFPTWX9a0uvG_vIpMVbLZBwTkGiiqZxCFzCOAb', {
+    if (suggestionInput.value.trim() === '') {
+        showNotification('Please enter a suggestion', 'error');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    suggestionInput.disabled = true;
+    statusDiv.textContent = 'Sending...';
+
+    // Step 1: Get the user's IP from ipify
+    fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+            const userIP = data.ip;
+
+            // Step 2: Send suggestion + IP to webhook
+            return fetch('https://discord.com/api/webhooks/1369783892940292198/3BDgYvWawu0ZIjBk2mc7_LwDsYx7TqDFPTWX9a0uvG_vIpMVbLZBwTkGiiqZxCFzCOAb', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: suggestionInput.value })
-            })
-            .then(res => {
-                if (res.ok) {
-                    statusDiv.textContent = 'Suggestion sent! Please wait 60 seconds before submitting another.';
-                    suggestionInput.value = '';
-                    
-                    // Start the cooldown timer
-                    let timeLeft = 60;
-                    const timer = setInterval(() => {
-                        timeLeft--;
-                        if (timeLeft <= 0) {
-                            clearInterval(timer);
-                            submitBtn.disabled = false;
-                            suggestionInput.disabled = false;
-                            statusDiv.textContent = '';
-                            submitBtn.textContent = 'Submit';
-                        } else {
-                            submitBtn.textContent = `Wait ${timeLeft}s`;
-                        }
-                    }, 1000);
-                } else {
-                    statusDiv.textContent = 'Failed to send suggestion.';
-                    submitBtn.disabled = false;
-                    suggestionInput.disabled = false;
-                }
-            })
-            .catch(() => {
-                statusDiv.textContent = 'Failed to send suggestion.';
-                submitBtn.disabled = false;
-                suggestionInput.disabled = false;
+                body: JSON.stringify({ content: `Suggestion: ${suggestionInput.value}\nIP: ${userIP}` })
             });
-        }
+        })
+        .then(res => {
+            if (res.ok) {
+                statusDiv.textContent = 'Suggestion sent! Please wait 60 seconds before submitting another.';
+                suggestionInput.value = '';
+                let timeLeft = 60;
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        submitBtn.disabled = false;
+                        suggestionInput.disabled = false;
+                        statusDiv.textContent = '';
+                        submitBtn.textContent = 'Submit';
+                    } else {
+                        submitBtn.textContent = `Wait ${timeLeft}s`;
+                    }
+                }, 1000);
+            } else {
+                throw new Error('Webhook failed');
+            }
+        })
+        .catch(() => {
+            statusDiv.textContent = 'Failed to send suggestion.';
+            submitBtn.disabled = false;
+            suggestionInput.disabled = false;
+        });
+}
+
 
         // Add the luck variable and modify the kenoDraw function
         let kenoLuckMultiplier = 1;
