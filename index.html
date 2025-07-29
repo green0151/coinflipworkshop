@@ -6250,6 +6250,15 @@ async function sendToAI() {
     chat.scrollTop = chat.scrollHeight;
   }
 }
+<script>
+  fetch("/api/track", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ event: "Page Loaded" })
+  });
 </script>
 </body>
-</html> 
+</html>
+
