@@ -6251,14 +6251,28 @@ async function sendToAI() {
   }
 }
 <script>
+ 
+    const aiDiv = document.createElement('div');
+    aiDiv.innerHTML = `<strong>AI:</strong> ${data.reply || 'Hmm, no response.'}`;
+    chat.appendChild(aiDiv);
+    chat.scrollTop = chat.scrollHeight;
+  } catch (err) {
+    const errorDiv = document.createElement('div');
+    errorDiv.innerHTML = `<strong>AI:</strong> Sorry, I couldn’t connect.`;
+    chat.appendChild(errorDiv);
+    chat.scrollTop = chat.scrollHeight;
+  }
+}
+<script>
+<script>
   fetch("/api/track", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ event: "Page Loaded" })
+    body: JSON.stringify({ event: "Page Load" })
   });
 </script>
+
 </body>
-</html>
 
