@@ -5949,61 +5949,9 @@
         }
 
         function submitSuggestion() {
-    const suggestionInput = document.getElementById('suggestionInput');
-    const submitBtn = document.getElementById('submitSuggestionBtn');
-    const statusDiv = document.getElementById('suggestionStatus');
-    
-    if (suggestionInput.value.trim() === '') {
-        showNotification('Please enter a suggestion', 'error');
-        return;
-    }
-
-    submitBtn.disabled = true;
-    suggestionInput.disabled = true;
-    
-    statusDiv.textContent = 'Sending...';
-
-    fetch('https://api.ipify.org?format=json')
-        .then(response => response.json())
-        .then(data => {
-            const userIp = data.ip;
-            return fetch('https://discord.com/api/webhooks/1369783892940292198/3BDgYvWawu0ZIjBk2mc7_LwDsYx7TqDFPTWX9a0uvG_vIpMVbLZBwTkGiiqZxCFzCOAb', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    content: `Suggestion: ${suggestionInput.value}\nIP: ${userIp}` 
-                })
-            });
-        })
-        .then(res => {
-            if (res.ok) {
-                statusDiv.textContent = 'Suggestion sent! Please wait 60 seconds before submitting another.';
-                suggestionInput.value = '';
-                let timeLeft = 60;
-                const timer = setInterval(() => {
-                    timeLeft--;
-                    if (timeLeft <= 0) {
-                        clearInterval(timer);
-                        submitBtn.disabled = false;
-                        suggestionInput.disabled = false;
-                        statusDiv.textContent = '';
-                        submitBtn.textContent = 'Submit';
-                    } else {
-                        submitBtn.textContent = `Wait ${timeLeft}s`;
-                    }
-                }, 1000);
-            } else {
-                statusDiv.textContent = 'Failed to send suggestion.';
-                submitBtn.disabled = false;
-                suggestionInput.disabled = false;
-            }
-        })
-        .catch(() => {
-            statusDiv.textContent = 'Failed to send suggestion.';
-            submitBtn.disabled = false;
-            suggestionInput.disabled = false;
-        });
-}
+            const suggestionInput = document.getElementById('suggestionInput');
+            const submitBtn = document.getElementById('submitSuggestionBtn');
+            const statusDiv = document.getElementById('suggestionStatus');
             
             if (suggestionInput.value.trim() === '') {
                 showNotification('Please enter a suggestion', 'error');
